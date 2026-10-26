@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { SubmissionFile } from '@/types/database.types';
-import { ExternalLink, Search, FileCode, FileSpreadsheet, FileText, FileBinary, File, HardDrive } from 'lucide-react';
+import { ExternalLink, Search, FileCode, FileSpreadsheet, FileText, Binary, File, HardDrive } from 'lucide-react';
 import { formatBytes, formatDate } from '@/lib/utils';
 
 interface SubmissionFileListProps {
@@ -23,7 +23,7 @@ export const SubmissionFileList: React.FC<SubmissionFileListProps> = ({ files })
       return <FileCode className="w-4 h-4 text-blue-600 shrink-0" />;
     }
     if (ext === 'exe' || ext === 'bin' || ext === 'o') {
-      return <FileBinary className="w-4 h-4 text-amber-600 shrink-0" />;
+      return <Binary className="w-4 h-4 text-amber-600 shrink-0" />;
     }
     if (ext === 'pdf' || ext === 'doc' || ext === 'docx' || ext === 'txt') {
       return <FileText className="w-4 h-4 text-rose-600 shrink-0" />;

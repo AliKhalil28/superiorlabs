@@ -1,0 +1,41 @@
+import React from 'react';
+import { redirect } from 'next/navigation';
+import { getSession } from '@/lib/auth/session';
+import { AppShell } from '@/components/layout/AppShell';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { getDriveConnection } from '@/lib/data/college-store';
+import { DriveSettingsClient } from './DriveSettingsClient';
+
+export default async function DriveSettingsPage() {
+  const session = await getSession();
+  if (!session) {
+    redirect('/login');
+  }
+
+  // Server-side authorization guard
+  if (session.role !== 'administrator') {
+    redirect('/dashboard?error=unauthorized');
+  }
+
+  const connection = await getDriveConnection();
+
+  return (
+    <AppShell
+      user={session}
+      syncStatus={connection.sync_status}
+      lastSuccessfulSync={connection.last_successful_sync}
+    >
+      <PageHeader
+        title="Google Drive Connection Settings"
+        subtitle="Manage OAuth authorization, root folder target, and synchronization parameters"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Settings' },
+          { label: 'Google Drive' },
+        ]}
+      />
+
+      <DriveSettingsClient initialConnection={connection} />
+    </AppShell>
+  );
+}

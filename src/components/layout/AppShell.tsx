@@ -195,10 +195,10 @@ export const AppShell: React.FC<AppShellProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-blue-400 shrink-0">
-                {user.name.charAt(0)}
+                {user?.name?.charAt(0) || 'U'}
               </div>
               <div className="overflow-hidden">
-                <div className="text-xs font-medium text-white truncate">{user.name}</div>
+                <div className="text-xs font-medium text-white truncate">{user?.name || 'Authorized Staff'}</div>
                 <div className="text-[11px] text-slate-400 flex items-center gap-1">
                   {isAdmin ? (
                     <>
@@ -254,7 +254,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
             <div className="flex items-center gap-1.5 text-xs text-slate-600">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>Role: <strong className="text-slate-800 capitalize">{user.role}</strong></span>
+              <span>Role: <strong className="text-slate-800 capitalize">{user?.role || 'Viewer'}</strong></span>
             </div>
           </div>
         </header>

@@ -62,34 +62,37 @@ export async function runDriveSync(
 
         // Fetch all items under root recursively using Drive API v3
         const allItems: DriveItemRaw[] = [];
-        let pageToken: string | undefined = undefined;
+        let currentToken: string | undefined = undefined;
 
-        do {
-          const res = await drive.files.list({
+        while (true) {
+          const response = await drive.files.list({
             pageSize: 1000,
             fields: 'nextPageToken, files(id, name, mimeType, parents, modifiedTime, size, webViewLink, trashed)',
             q: 'trashed = false',
-            pageToken,
+            pageToken: currentToken,
           });
 
-          if (res.data.files) {
-            for (const f of res.data.files) {
-              if (f.id && f.name && f.mimeType) {
-                allItems.push({
-                  id: f.id,
-                  name: f.name,
-                  mimeType: f.mimeType,
-                  parents: f.parents || undefined,
-                  modifiedTime: f.modifiedTime || undefined,
-                  size: f.size || undefined,
-                  webViewLink: f.webViewLink || undefined,
-                  trashed: f.trashed || false,
-                });
-              }
+          const files = response.data.files || [];
+          for (const f of files) {
+            if (f.id && f.name && f.mimeType) {
+              allItems.push({
+                id: f.id,
+                name: f.name,
+                mimeType: f.mimeType,
+                parents: f.parents || undefined,
+                modifiedTime: f.modifiedTime || undefined,
+                size: f.size || undefined,
+                webViewLink: f.webViewLink || undefined,
+                trashed: f.trashed || false,
+              });
             }
           }
-          pageToken = res.data.nextPageToken || undefined;
-        } while (pageToken);
+
+          if (!response.data.nextPageToken) {
+            break;
+          }
+          currentToken = response.data.nextPageToken;
+        }
 
         // Classify hierarchy
         const classified = classifyDriveHierarchy(rootFolderId, allItems);

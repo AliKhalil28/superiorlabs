@@ -48,7 +48,7 @@ export async function exchangeCodeForTokens(code: string) {
 
   const { tokens } = await oauth2Client.getToken(code);
   return {
-    accessToken: tokens.access_type,
+    accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token,
     encryptedRefreshToken: tokens.refresh_token ? encryptToken(tokens.refresh_token) : null,
     expiryDate: tokens.expiry_date,
