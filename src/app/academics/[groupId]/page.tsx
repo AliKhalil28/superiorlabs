@@ -1,6 +1,8 @@
 import React from 'react';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
 import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -10,7 +12,7 @@ import {
   getAllSubjectSummaries,
   getDriveConnection,
 } from '@/lib/data/college-store';
-import { BookOpen, ArrowRight, Folder, FolderCheck, FolderX, FileText } from 'lucide-react';
+import { BookOpen, ArrowRight, FileText } from 'lucide-react';
 
 interface Props {
   params: Promise<{ groupId: string }>;

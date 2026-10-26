@@ -1,11 +1,12 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
 import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ProgressBar } from '@/components/shared/ProgressBar';
-import { StatusBadge } from '@/components/shared/StatusBadge';
 import {
   getDashboardMetrics,
   getAllSubjectSummaries,
@@ -16,12 +17,10 @@ import {
   BookOpen,
   FolderCheck,
   Folder,
-  FolderX,
   FileText,
   HardDrive,
   ArrowRight,
   AlertTriangle,
-  ExternalLink,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 

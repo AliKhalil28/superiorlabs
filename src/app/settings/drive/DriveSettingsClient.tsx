@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { DriveConnection } from '@/types/database.types';
-import { HardDrive, RefreshCw, CheckCircle2, AlertCircle, Save, ExternalLink, ShieldCheck } from 'lucide-react';
+import { HardDrive, RefreshCw, CheckCircle2, AlertCircle, Save, ShieldCheck } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 interface DriveSettingsClientProps {

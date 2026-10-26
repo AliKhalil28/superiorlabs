@@ -8,7 +8,6 @@ import {
   GraduationCap,
   BookOpen,
   Search,
-  Settings,
   HardDrive,
   GitFork,
   Activity,

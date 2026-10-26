@@ -2,7 +2,6 @@ import {
   AcademicGroupSummaryView,
   CollegeDashboardMetricsView,
   DriveConnection,
-  PracticalFolderSummaryView,
   SubjectSummaryView,
   SubmissionFile,
   SyncJob,

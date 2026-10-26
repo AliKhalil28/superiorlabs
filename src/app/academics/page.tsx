@@ -1,12 +1,14 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
 import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ProgressBar } from '@/components/shared/ProgressBar';
 import { getAcademicGroups, getDriveConnection } from '@/lib/data/college-store';
-import { GraduationCap, ArrowRight, Folder, FolderCheck, FolderX, FileText } from 'lucide-react';
+import { GraduationCap, ArrowRight, FileText } from 'lucide-react';
 
 export default async function AcademicsPage() {
   const session = await getSession();

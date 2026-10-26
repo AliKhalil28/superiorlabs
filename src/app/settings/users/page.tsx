@@ -1,10 +1,12 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { getCollegeUsers, getDriveConnection } from '@/lib/data/college-store';
-import { Users, ShieldCheck, UserCheck, UserPlus, Info, CheckCircle2 } from 'lucide-react';
+import { Users, ShieldCheck, UserCheck, Info, CheckCircle2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 export default async function UsersSettingsPage() {

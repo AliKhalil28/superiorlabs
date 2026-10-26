@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { StatusBadge, PracticalDisplayStatus } from '@/components/shared/StatusBadge';
-import { Folder, FolderCheck, FolderX, FolderOpen, ChevronRight, FileText, Calendar } from 'lucide-react';
+import { Folder, FolderCheck, FolderX, ChevronRight, FileText, Calendar } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
 
 interface PracticalFolderCardProps {
@@ -11,7 +11,7 @@ interface PracticalFolderCardProps {
   status: PracticalDisplayStatus;
   fileCount: number;
   lastModified: string | null;
-  subjectId: string;
+  subjectId?: string;
   isVirtualPlaceholder?: boolean;
 }
 
@@ -22,12 +22,10 @@ export const PracticalFolderCard: React.FC<PracticalFolderCardProps> = ({
   status,
   fileCount,
   lastModified,
-  subjectId,
   isVirtualPlaceholder = false,
 }) => {
   const isMissing = status === 'folder_missing';
   const isPopulated = status === 'submissions_available';
-  const isEmpty = status === 'no_submissions';
 
   const cardContent = (
     <div

@@ -1,13 +1,13 @@
 import React from 'react';
 import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
+export const dynamic = 'force-dynamic';
 import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ProgressBar } from '@/components/shared/ProgressBar';
 import { PracticalFolderCard } from '@/components/practicals/PracticalFolderCard';
 import { getSubjectById, getDriveConnection } from '@/lib/data/college-store';
-import { BookOpen, Folder, FolderCheck, FolderX, FileText, HardDrive, Info } from 'lucide-react';
+import { BookOpen, Folder, FolderCheck, Info } from 'lucide-react';
 
 interface Props {
   params: Promise<{ subjectId: string }>;

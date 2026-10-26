@@ -17,7 +17,7 @@ export const SubmissionFileList: React.FC<SubmissionFileListProps> = ({ files })
     f.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
   );
 
-  const getFileIcon = (fileName: string, mimeType?: string | null) => {
+  const getFileIcon = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase();
     if (ext === 'cpp' || ext === 'c' || ext === 'h' || ext === 'java' || ext === 'py' || ext === 'js' || ext === 'html') {
       return <FileCode className="w-4 h-4 text-blue-600 shrink-0" />;
@@ -85,7 +85,7 @@ export const SubmissionFileList: React.FC<SubmissionFileListProps> = ({ files })
                   </td>
                   <td className="py-2.5 px-4 font-mono font-medium text-slate-900">
                     <div className="flex items-center gap-2">
-                      {getFileIcon(file.name, file.mime_type)}
+                      {getFileIcon(file.name)}
                       <button
                         type="button"
                         onClick={() => setSelectedFileForInspection(file)}

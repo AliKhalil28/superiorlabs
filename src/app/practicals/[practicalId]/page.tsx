@@ -1,13 +1,15 @@
 import React from 'react';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
 import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SubmissionFileList } from '@/components/practicals/SubmissionFileList';
 import { getPracticalById, getDriveConnection } from '@/lib/data/college-store';
-import { FolderCheck, ExternalLink, Calendar, HardDrive, ShieldAlert, ArrowLeft } from 'lucide-react';
+import { FolderCheck, Calendar, HardDrive, ShieldAlert, ArrowLeft } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 interface Props {

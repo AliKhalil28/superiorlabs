@@ -2,6 +2,7 @@ import { getAuthenticatedDriveClient } from './oauth';
 import { classifyDriveHierarchy, DriveItemRaw } from './hierarchy';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { SyncStatus } from '@/types/database.types';
+import type { drive_v3 } from 'googleapis';
 
 export interface SyncResult {
   success: boolean;
@@ -65,14 +66,14 @@ export async function runDriveSync(
         let currentToken: string | undefined = undefined;
 
         while (true) {
-          const response = await drive.files.list({
+          const listResult: { data: drive_v3.Schema$FileList } = await drive.files.list({
             pageSize: 1000,
             fields: 'nextPageToken, files(id, name, mimeType, parents, modifiedTime, size, webViewLink, trashed)',
             q: 'trashed = false',
             pageToken: currentToken,
           });
 
-          const files = response.data.files || [];
+          const files = listResult.data.files || [];
           for (const f of files) {
             if (f.id && f.name && f.mimeType) {
               allItems.push({
@@ -88,10 +89,10 @@ export async function runDriveSync(
             }
           }
 
-          if (!response.data.nextPageToken) {
+          if (!listResult.data.nextPageToken) {
             break;
           }
-          currentToken = response.data.nextPageToken;
+          currentToken = listResult.data.nextPageToken;
         }
 
         // Classify hierarchy

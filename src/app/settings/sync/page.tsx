@@ -1,10 +1,12 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { getDriveConnection, getSyncJobs } from '@/lib/data/college-store';
-import { Activity, Radio, RefreshCw, CheckCircle2, Clock, ShieldCheck, Database } from 'lucide-react';
+import { Activity, Radio, CheckCircle2, Database } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 export default async function SyncDiagnosticsPage() {

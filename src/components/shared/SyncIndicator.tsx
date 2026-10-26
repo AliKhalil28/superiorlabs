@@ -85,7 +85,7 @@ export const SyncIndicator: React.FC<SyncIndicatorProps> = ({
       )}
     >
       <div className="flex items-center gap-1.5">
-        <span className={cn('w-2 h-2 rounded-full', current.dot)} />
+        <Icon className={cn('w-3.5 h-3.5', current.textColor)} />
         <span className={cn('font-medium', current.textColor)}>{current.label}</span>
       </div>
 

@@ -1,10 +1,12 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { getDriveConnection } from '@/lib/data/college-store';
-import { GitFork, CheckCircle2, AlertTriangle, ShieldCheck, Layers, HelpCircle } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Layers, HelpCircle } from 'lucide-react';
 
 export default async function HierarchySettingsPage() {
   const session = await getSession();

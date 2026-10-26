@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { SubjectSummaryView } from '@/types/database.types';
 import { ProgressBar } from '@/components/shared/ProgressBar';
-import { Search, Filter, BookOpen, ArrowRight, Folder, FolderCheck, FolderX, FileText } from 'lucide-react';
+import { Search, Filter, BookOpen, ArrowRight, FileText } from 'lucide-react';
 
 interface SubjectsClientViewProps {
   initialSubjects: SubjectSummaryView[];
@@ -60,7 +60,7 @@ export const SubjectsClientView: React.FC<SubjectsClientViewProps> = ({ initialS
           </div>
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
+            onChange={(e) => setFilter(e.target.value as 'all' | 'missing' | 'incomplete' | 'completed')}
             className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-blue-600"
           >
             <option value="all">All Subjects ({initialSubjects.length})</option>
@@ -71,7 +71,7 @@ export const SubjectsClientView: React.FC<SubjectsClientViewProps> = ({ initialS
 
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'name' | 'lowest_coverage' | 'highest_coverage')}
             className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-blue-600"
           >
             <option value="name">Sort by Name</option>

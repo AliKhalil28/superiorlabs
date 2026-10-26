@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, BookOpen, GraduationCap, FolderCheck, FileText, ArrowRight, ExternalLink } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
 
 export const SearchClientView: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -31,12 +30,13 @@ export const SearchClientView: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!query.trim()) {
-      setResults({ academicGroups: [], subjects: [], practicals: [], files: [] });
-      return;
-    }
-
     const timer = setTimeout(async () => {
+      if (!query.trim()) {
+        setResults({ academicGroups: [], subjects: [], practicals: [], files: [] });
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
