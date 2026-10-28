@@ -322,28 +322,28 @@ export interface CollegeUser {
 
 const collegeUsers: CollegeUser[] = [
   {
-    id: 'usr-admin-01',
-    email: 'admin.lab@superior.edu.pk',
-    full_name: 'Engr. Mian Asif (Lab Admin)',
+    id: '5946468b-d360-49dc-9406-19bed2d8a3e9',
+    email: 'admin@superiorcollegemc.com',
+    full_name: 'IT Administrator',
     role: 'administrator',
     is_active: true,
     created_at: '2026-09-01T00:00:00Z',
   },
   {
-    id: 'usr-viewer-01',
-    email: 'hod.cs@superior.edu.pk',
-    full_name: 'Dr. Tariq Mehmood (HOD CS)',
+    id: '5a96be03-7637-429d-8937-874b9cbe6d5c',
+    email: 'labincharge@superiorcollegemc.com',
+    full_name: 'Lab Incharge',
+    role: 'administrator',
+    is_active: true,
+    created_at: '2026-09-02T00:00:00Z',
+  },
+  {
+    id: '0cf26239-f9ca-43c8-ba91-13b1a7925132',
+    email: 'hod@superiorcollegemc.com',
+    full_name: 'Head of Department',
     role: 'viewer',
     is_active: true,
     created_at: '2026-09-05T00:00:00Z',
-  },
-  {
-    id: 'usr-viewer-02',
-    email: 'faculty.se@superior.edu.pk',
-    full_name: 'Prof. Ayesha Khan (SE Faculty)',
-    role: 'viewer',
-    is_active: true,
-    created_at: '2026-09-10T00:00:00Z',
   },
 ];
 
@@ -359,7 +359,7 @@ const syncJobs: SyncJob[] = [
     files_discovered: 393,
     errors: [],
     warnings: [],
-    triggered_by: 'admin.lab@superior.edu.pk',
+    triggered_by: 'admin@superiorcollegemc.com',
     created_at: '2026-10-25T10:00:00Z',
   },
   {

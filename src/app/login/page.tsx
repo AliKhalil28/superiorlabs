@@ -40,12 +40,15 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickFill = (role: 'admin' | 'viewer') => {
+  const handleQuickFill = (role: 'admin' | 'labincharge' | 'hod') => {
     if (role === 'admin') {
-      setEmail('admin.lab@superior.edu.pk');
+      setEmail('admin@superiorcollegemc.com');
+      setPassword('Superior2026!');
+    } else if (role === 'labincharge') {
+      setEmail('labincharge@superiorcollegemc.com');
       setPassword('Superior2026!');
     } else {
-      setEmail('hod.cs@superior.edu.pk');
+      setEmail('hod@superiorcollegemc.com');
       setPassword('Superior2026!');
     }
   };
@@ -89,7 +92,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   required
-                  placeholder="admin.lab@superior.edu.pk"
+                  placeholder="admin@superiorcollegemc.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
@@ -132,31 +135,39 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Quick Institutional Credentials Helper for Testing */}
+          {/* Quick Institutional Credentials Helper */}
           <div className="mt-6 pt-5 border-t border-slate-200 space-y-2">
             <span className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">
               College Staff Access Accounts
             </span>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-3 gap-1.5 text-xs">
               <button
                 type="button"
                 onClick={() => handleQuickFill('admin')}
                 className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
               >
-                <div className="font-semibold text-slate-900">Administrator</div>
-                <div className="text-[10px] text-slate-500 truncate">admin.lab@...</div>
+                <div className="font-semibold text-slate-900 text-[11px]">Administrator</div>
+                <div className="text-[9px] text-slate-500 truncate">admin@...</div>
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill('viewer')}
+                onClick={() => handleQuickFill('labincharge')}
                 className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
               >
-                <div className="font-semibold text-slate-900">HOD / Viewer</div>
-                <div className="text-[10px] text-slate-500 truncate">hod.cs@...</div>
+                <div className="font-semibold text-slate-900 text-[11px]">Lab Incharge</div>
+                <div className="text-[9px] text-slate-500 truncate">labincharge@...</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('hod')}
+                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
+              >
+                <div className="font-semibold text-slate-900 text-[11px]">HOD / Viewer</div>
+                <div className="text-[9px] text-slate-500 truncate">hod@...</div>
               </button>
             </div>
             <p className="text-[10px] text-slate-400 text-center mt-1">
-              Public self-registration is disabled. Contact College IT for account provisioning.
+              Default college staff password: <span className="font-mono text-slate-600">Superior2026!</span>
             </p>
           </div>
         </div>

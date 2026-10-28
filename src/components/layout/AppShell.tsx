@@ -37,8 +37,8 @@ interface AppShellProps {
 export const AppShell: React.FC<AppShellProps> = ({
   children,
   user = {
-    name: 'Engr. Mian Asif',
-    email: 'admin.lab@superior.edu.pk',
+    name: 'IT Administrator',
+    email: 'admin@superiorcollegemc.com',
     role: 'administrator',
   },
   syncStatus = 'successful',
