@@ -1,8 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { DriveConnection } from '@/types/database.types';
-import { HardDrive, RefreshCw, CheckCircle2, AlertCircle, Save, ShieldCheck } from 'lucide-react';
+import {
+  HardDrive,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
+  Save,
+  ShieldCheck,
+  ExternalLink,
+  KeyRound,
+  FolderSync,
+} from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 interface DriveSettingsClientProps {
@@ -10,12 +21,30 @@ interface DriveSettingsClientProps {
 }
 
 export const DriveSettingsClient: React.FC<DriveSettingsClientProps> = ({ initialConnection }) => {
+  const searchParams = useSearchParams();
   const [rootFolderId, setRootFolderId] = useState(initialConnection.root_folder_id);
   const [rootFolderName, setRootFolderName] = useState(initialConnection.root_folder_name);
   const [connectedEmail, setConnectedEmail] = useState(initialConnection.connected_email || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  useEffect(() => {
+    const status = searchParams.get('status');
+    const error = searchParams.get('error');
+
+    if (status === 'connected') {
+      setFeedback({
+        type: 'success',
+        message: 'Google Account successfully authorized and connected! You can now configure the root folder and run sync.',
+      });
+    } else if (error) {
+      setFeedback({
+        type: 'error',
+        message: `Google OAuth authorization error: ${decodeURIComponent(error)}`,
+      });
+    }
+  }, [searchParams]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,7 +118,7 @@ export const DriveSettingsClient: React.FC<DriveSettingsClientProps> = ({ initia
 
       {/* Connection Status Card */}
       <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
               <HardDrive className="w-5 h-5" />
@@ -102,15 +131,25 @@ export const DriveSettingsClient: React.FC<DriveSettingsClientProps> = ({ initia
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleTriggerSync}
-            disabled={isSyncing}
-            className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-2 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span>{isSyncing ? 'Synchronizing...' : 'Run Sync Now'}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href="/api/drive/connect"
+              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors border border-slate-200"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-blue-600" />
+              <span>Authorize with Google</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={handleTriggerSync}
+              disabled={isSyncing}
+              className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-2 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>{isSyncing ? 'Synchronizing...' : 'Run Sync Now'}</span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -143,7 +182,7 @@ export const DriveSettingsClient: React.FC<DriveSettingsClientProps> = ({ initia
           Configured Root Folder Settings
         </h2>
         <p className="text-xs text-slate-500 mb-5">
-          Enter the Google Drive folder ID or URL containing the college lab practicals hierarchy.
+          Enter the Google Drive folder ID or full URL containing the college lab practicals hierarchy.
         </p>
 
         <form onSubmit={handleSave} className="space-y-4 text-xs">
@@ -212,6 +251,28 @@ export const DriveSettingsClient: React.FC<DriveSettingsClientProps> = ({ initia
             </button>
           </div>
         </form>
+      </div>
+
+      {/* Guide Card */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 text-xs text-blue-900 space-y-3">
+        <div className="flex items-center gap-2 font-bold text-blue-950">
+          <FolderSync className="w-4 h-4 text-blue-700" />
+          <span>How to Connect Real Google Drive in 4 Steps</span>
+        </div>
+        <ol className="list-decimal list-inside space-y-2 text-[11px] text-blue-800 leading-relaxed">
+          <li>
+            <strong>Configure OAuth in Google Cloud:</strong> Create an OAuth 2.0 Web Client in Google Cloud Console with scope <code>drive.metadata.readonly</code> and redirect URI <code>/api/auth/google/callback</code>.
+          </li>
+          <li>
+            <strong>Add Environment Variables:</strong> Set <code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code>, <code>GOOGLE_REDIRECT_URI</code>, and <code>GOOGLE_TOKEN_ENCRYPTION_KEY</code> in your Vercel or <code>.env.local</code> settings.
+          </li>
+          <li>
+            <strong>Authorize Account:</strong> Click the <strong>&quot;Authorize with Google&quot;</strong> button above to connect the college Google Workspace account.
+          </li>
+          <li>
+            <strong>Paste Root Folder &amp; Run Sync:</strong> Paste your college lab root folder ID or URL above, click <strong>&quot;Save Configuration&quot;</strong>, then click <strong>&quot;Run Sync Now&quot;</strong>.
+          </li>
+        </ol>
       </div>
 
       {/* Security notice */}
