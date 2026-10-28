@@ -8,6 +8,7 @@ import {
   AppUserRole,
 } from '@/types/database.types';
 import { calculateSubjectProgress, RawPracticalInput } from '@/lib/progress/progress-engine';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 // Initial connection state
 let currentDriveConnection: DriveConnection = {
@@ -623,6 +624,25 @@ export async function searchGlobalMetadata(query: string) {
  * Returns Drive connection status
  */
 export async function getDriveConnection(): Promise<DriveConnection> {
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('drive_connections')
+        .select('*')
+        .eq('id', '00000000-0000-0000-0000-000000000001')
+        .maybeSingle();
+
+      if (data && !error) {
+        currentDriveConnection = {
+          ...currentDriveConnection,
+          ...data,
+        };
+      }
+    } catch {
+      // Fall back to memory store if query fails
+    }
+  }
   return currentDriveConnection;
 }
 
@@ -637,6 +657,22 @@ export async function updateDriveConnection(
     ...updates,
     updated_at: new Date().toISOString(),
   };
+
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      await supabase
+        .from('drive_connections')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', '00000000-0000-0000-0000-000000000001');
+    } catch {
+      // Ignore background persistence error
+    }
+  }
+
   return currentDriveConnection;
 }
 

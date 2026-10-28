@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
     await updateDriveConnection({
       connection_status: 'connected',
       encrypted_refresh_token: encryptedRefreshToken || undefined,
-      connected_email: connectedEmail || 'authorized.drive@superior.edu.pk',
+      connected_email: connectedEmail || 'superiorcollegemianchannu@gmail.com',
       last_error_message: null,
     });
 
@@ -53,16 +53,14 @@ export async function GET(req: NextRequest) {
     if (supabase) {
       await supabase
         .from('drive_connections')
-        .upsert(
-          {
-            connection_status: 'connected',
-            encrypted_refresh_token: encryptedRefreshToken,
-            connected_email: connectedEmail || 'authorized.drive@superior.edu.pk',
-            last_error_message: null,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'id' }
-        );
+        .update({
+          connection_status: 'connected',
+          encrypted_refresh_token: encryptedRefreshToken,
+          connected_email: connectedEmail || 'superiorcollegemianchannu@gmail.com',
+          last_error_message: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', '00000000-0000-0000-0000-000000000001');
     }
 
     return NextResponse.redirect(
