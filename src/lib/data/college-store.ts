@@ -9,12 +9,12 @@ import {
 } from '@/types/database.types';
 import { calculateSubjectProgress, RawPracticalInput } from '@/lib/progress/progress-engine';
 
-// Mock connection state
+// Initial connection state
 let currentDriveConnection: DriveConnection = {
   id: 'conn-01',
-  connected_email: 'it.dept@superior.edu.pk',
-  root_folder_id: '1AbC_xyzSuperiorLabs2026Root',
-  root_folder_name: 'BS Labs Practicals Data',
+  connected_email: 'admin@superiorcollegemc.com',
+  root_folder_id: '1n2aMw0nhEoesQUUKpwMErIAPOkyZJq1k',
+  root_folder_name: 'Superior College Labs Root',
   encrypted_refresh_token: 'dummy-encrypted-token',
   connection_status: 'connected',
   sync_status: 'successful',
