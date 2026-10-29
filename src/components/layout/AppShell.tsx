@@ -114,7 +114,7 @@ export const AppShell: React.FC<AppShellProps> = ({
       {/* Sidebar Navigation */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transition-transform duration-200 ease-in-out border-r border-slate-800 lg:sticky lg:top-0 lg:h-screen shrink-0',
+          'fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transition-transform duration-200 ease-in-out border-r border-slate-800 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 shrink-0',
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
