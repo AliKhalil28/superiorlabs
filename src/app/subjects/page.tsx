@@ -34,7 +34,10 @@ export default async function SubjectsPage() {
         ]}
       />
 
-      <SubjectsClientView initialSubjects={subjects} />
+      <SubjectsClientView
+        initialSubjects={subjects}
+        isAdmin={session.role === 'administrator'}
+      />
     </AppShell>
   );
 }

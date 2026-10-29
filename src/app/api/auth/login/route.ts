@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
       if (!error && data.user) {
         const metadata = data.user.user_metadata || {};
-        const role = (metadata.role as AppUserRole) || (cleanEmail.includes('admin') || cleanEmail.includes('labincharge') ? 'administrator' : 'viewer');
+        const role = (metadata.role as AppUserRole) || (cleanEmail.startsWith('admin@') ? 'administrator' : 'viewer');
         authenticatedUser = {
           id: data.user.id,
           email: data.user.email || cleanEmail,

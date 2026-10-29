@@ -2,14 +2,15 @@
 
 import React, { useState } from 'react';
 import { SubmissionFile } from '@/types/database.types';
-import { ExternalLink, Search, FileCode, FileSpreadsheet, FileText, Binary, File, HardDrive } from 'lucide-react';
+import { ExternalLink, Search, FileCode, FileSpreadsheet, FileText, Binary, File, HardDrive, Lock } from 'lucide-react';
 import { formatBytes, formatDate } from '@/lib/utils';
 
 interface SubmissionFileListProps {
   files: SubmissionFile[];
+  isAdmin?: boolean;
 }
 
-export const SubmissionFileList: React.FC<SubmissionFileListProps> = ({ files }) => {
+export const SubmissionFileList: React.FC<SubmissionFileListProps> = ({ files, isAdmin = false }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFileForInspection, setSelectedFileForInspection] = useState<SubmissionFile | null>(null);
 
@@ -108,19 +109,29 @@ export const SubmissionFileList: React.FC<SubmissionFileListProps> = ({ files })
                     {formatDate(file.drive_modified_time)}
                   </td>
                   <td className="py-2.5 px-4 text-right">
-                    {file.web_view_link ? (
-                      <a
-                        href={file.web_view_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium text-[11px] hover:underline"
-                        title="Open original file in Google Drive (external)"
-                      >
-                        <span>Open Drive</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
+                    {isAdmin ? (
+                      file.web_view_link ? (
+                        <a
+                          href={file.web_view_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium text-[11px] hover:underline"
+                          title="Open original file in Google Drive (Admin only)"
+                        >
+                          <span>Open Drive</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <span className="text-slate-400 text-[11px]">No link</span>
+                      )
                     ) : (
-                      <span className="text-slate-400 text-[11px]">No link</span>
+                      <span
+                        className="inline-flex items-center gap-1 text-slate-400 text-[11px] font-medium"
+                        title="Viewing files is restricted to College Administrator"
+                      >
+                        <Lock className="w-3 h-3 text-slate-400" />
+                        <span>Admin only</span>
+                      </span>
                     )}
                   </td>
                 </tr>
@@ -183,16 +194,23 @@ export const SubmissionFileList: React.FC<SubmissionFileListProps> = ({ files })
               >
                 Close
               </button>
-              {selectedFileForInspection.web_view_link && (
-                <a
-                  href={selectedFileForInspection.web_view_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 text-xs font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors inline-flex items-center gap-1.5"
-                >
-                  <span>Open in Google Drive</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+              {isAdmin ? (
+                selectedFileForInspection.web_view_link && (
+                  <a
+                    href={selectedFileForInspection.web_view_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 text-xs font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <span>Open in Google Drive</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )
+              ) : (
+                <div className="text-[11px] text-slate-400 flex items-center gap-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg">
+                  <Lock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>File view restricted to Administrator</span>
+                </div>
               )}
             </div>
           </div>

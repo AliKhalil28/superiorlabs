@@ -6,6 +6,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ProgressBar } from '@/components/shared/ProgressBar';
 import { PracticalFolderCard } from '@/components/practicals/PracticalFolderCard';
+import { SubjectTeacherBadge } from '@/components/subjects/SubjectTeacherBadge';
 import { getSubjectById, getDriveConnection } from '@/lib/data/college-store';
 import { BookOpen, Folder, FolderCheck, Info } from 'lucide-react';
 
@@ -65,6 +66,12 @@ export default async function SubjectDetailPage({ params }: Props) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <SubjectTeacherBadge
+              subjectId={subject.id}
+              subjectName={subject.name}
+              initialTeacherName={subject.teacherName || null}
+              isAdmin={session.role === 'administrator'}
+            />
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100">
               <Folder className="w-4 h-4" />
               Folder Coverage: {progress.folderCoveragePercentage}%

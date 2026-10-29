@@ -109,7 +109,14 @@ export default async function PracticalDetailPage({ params }: Props) {
       </div>
 
       {/* Discovered Student Files List */}
-      <SubmissionFileList files={practical.files} />
+      <SubmissionFileList
+        files={
+          session.role === 'administrator'
+            ? practical.files
+            : practical.files.map((f) => ({ ...f, web_view_link: undefined }))
+        }
+        isAdmin={session.role === 'administrator'}
+      />
     </AppShell>
   );
 }

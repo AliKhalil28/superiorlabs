@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   GraduationCap,
   BookOpen,
-  Search,
   HardDrive,
   GitFork,
   Activity,
@@ -17,7 +17,6 @@ import {
   X,
   ShieldCheck,
   UserCheck,
-  School,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SyncIndicator } from '@/components/shared/SyncIndicator';
@@ -54,7 +53,6 @@ export const AppShell: React.FC<AppShellProps> = ({
     { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Academic Groups', href: '/academics', icon: GraduationCap },
     { label: 'Subjects & Practicals', href: '/subjects', icon: BookOpen },
-    { label: 'Global Search', href: '/search', icon: Search },
   ];
 
   const adminNavItems = [
@@ -87,13 +85,20 @@ export const AppShell: React.FC<AppShellProps> = ({
     <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row antialiased text-slate-900">
       {/* Mobile Header Bar */}
       <header className="lg:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-slate-800">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-xs">
-            <School className="w-5 h-5" />
+        <div className="flex items-center gap-3">
+          <div className="bg-white px-2 py-1 rounded-md flex items-center justify-center">
+            <Image
+              src="/images/superior-logo.png"
+              alt="Superior College Logo"
+              width={110}
+              height={28}
+              className="h-6 w-auto object-contain"
+              priority
+            />
           </div>
           <div>
-            <div className="text-sm font-bold tracking-tight">Superior Lab Tracker</div>
-            <div className="text-[10px] text-slate-400">Superior College, Mian Channu</div>
+            <div className="text-xs font-bold tracking-tight">Superior Lab Tracker</div>
+            <div className="text-[10px] text-slate-400">Mian Channu Campus</div>
           </div>
         </div>
 
@@ -114,18 +119,30 @@ export const AppShell: React.FC<AppShellProps> = ({
         )}
       >
         <div>
-          {/* Brand Header */}
-          <div className="p-5 border-b border-slate-800 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white shadow-sm shrink-0">
-              <School className="w-5 h-5" />
+          {/* Brand Header with Official Superior Logo */}
+          <div className="p-4 border-b border-slate-800 space-y-3">
+            <div className="bg-white rounded-xl p-2.5 flex items-center justify-center shadow-xs">
+              <Image
+                src="/images/superior-logo.png"
+                alt="Superior College Logo"
+                width={200}
+                height={52}
+                className="h-9 w-auto object-contain"
+                priority
+              />
             </div>
-            <div className="overflow-hidden">
-              <div className="font-bold text-sm tracking-tight text-white truncate">
-                Superior Lab Tracker
+            <div className="px-1 flex items-center justify-between">
+              <div>
+                <div className="font-bold text-xs tracking-tight text-white">
+                  Superior Lab Tracker
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  Superior College, Mian Channu
+                </div>
               </div>
-              <div className="text-[11px] text-slate-400 truncate">
-                Superior College, Mian Channu
-              </div>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 font-semibold border border-blue-800 uppercase tracking-wider">
+                Labs
+              </span>
             </div>
           </div>
 

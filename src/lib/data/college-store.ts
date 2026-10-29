@@ -334,7 +334,7 @@ const collegeUsers: CollegeUser[] = [
     id: '5a96be03-7637-429d-8937-874b9cbe6d5c',
     email: 'labincharge@superiorcollegemc.com',
     full_name: 'Lab Incharge',
-    role: 'administrator',
+    role: 'viewer',
     is_active: true,
     created_at: '2026-09-02T00:00:00Z',
   },
@@ -540,6 +540,7 @@ export async function getAllSubjectSummaries(): Promise<SubjectSummaryView[]> {
           subject_id: s.subject_id,
           drive_folder_id: s.drive_folder_id,
           subject_name: s.subject_name,
+          teacher_name: s.teacher_name || null,
           academic_group_id: s.academic_group_id,
           academic_group_name: s.academic_group_name,
           expected_practicals: Number(s.expected_practicals),
@@ -591,7 +592,7 @@ export async function getSubjectById(subjectId: string) {
       // Support querying either by UUID or by Drive folder ID
       const query = supabase
         .from('subjects')
-        .select('id, name, drive_folder_id, academic_group_id, expected_practicals, academic_groups(id, name)');
+        .select('id, name, drive_folder_id, teacher_name, academic_group_id, expected_practicals, academic_groups(id, name)');
 
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subjectId);
       const { data: subj } = isUuid
@@ -634,6 +635,7 @@ export async function getSubjectById(subjectId: string) {
           id: subj.id,
           name: subj.name,
           driveFolderId: subj.drive_folder_id,
+          teacherName: subj.teacher_name || null,
           academicGroupId: subj.academic_group_id,
           academicGroupName: groupName,
           expectedPracticals: subj.expected_practicals || 10,
@@ -653,8 +655,44 @@ export async function getSubjectById(subjectId: string) {
 
   return {
     ...subj,
+    teacherName: null,
     progress,
   };
+}
+
+/**
+ * Updates the assigned teacher for a subject (Admin only)
+ */
+export async function updateSubjectTeacher(
+  subjectId: string,
+  teacherName: string
+): Promise<boolean> {
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subjectId);
+      const query = supabase
+        .from('subjects')
+        .update({
+          teacher_name: teacherName.trim() || null,
+          updated_at: new Date().toISOString(),
+        });
+
+      const { error } = isUuid
+        ? await query.eq('id', subjectId)
+        : await query.eq('drive_folder_id', subjectId);
+
+      if (!error) return true;
+    } catch {
+      // Fallback
+    }
+  }
+
+  const subj = subjects.find((s) => s.id === subjectId || s.driveFolderId === subjectId);
+  if (subj) {
+    return true;
+  }
+  return false;
 }
 
 /**

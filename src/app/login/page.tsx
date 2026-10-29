@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { School, Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -58,8 +59,15 @@ export default function LoginPage() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
         {/* Superior College Header Banner */}
         <div className="bg-slate-900 p-8 text-center text-white relative">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-md">
-            <School className="w-8 h-8" />
+          <div className="bg-white rounded-2xl py-3 px-6 mx-auto mb-4 max-w-[260px] shadow-lg flex items-center justify-center">
+            <Image
+              src="/images/superior-logo.png"
+              alt="Superior College Logo"
+              width={240}
+              height={64}
+              className="h-11 w-auto object-contain"
+              priority
+            />
           </div>
           <h1 className="text-xl font-bold tracking-tight">Superior Lab Tracker</h1>
           <p className="text-xs text-slate-300 mt-1 font-medium">

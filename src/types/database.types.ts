@@ -80,6 +80,7 @@ export interface Subject {
   id: string;
   drive_folder_id: string;
   name: string;
+  teacher_name?: string | null;
   academic_group_id: string | null;
   expected_practicals: number;
   created_at: string;
@@ -165,6 +166,7 @@ export interface SubjectSummaryView {
   subject_id: string;
   drive_folder_id: string;
   subject_name: string;
+  teacher_name?: string | null;
   academic_group_id: string | null;
   academic_group_name: string | null;
   expected_practicals: number;
