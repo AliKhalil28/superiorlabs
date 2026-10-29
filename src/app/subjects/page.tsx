@@ -8,11 +8,17 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { getAllSubjectSummaries, getDriveConnection } from '@/lib/data/college-store';
 import { SubjectsClientView } from './SubjectsClientView';
 
-export default async function SubjectsPage() {
+interface SubjectsPageProps {
+  searchParams?: Promise<{ teacher?: string }>;
+}
+
+export default async function SubjectsPage({ searchParams }: SubjectsPageProps) {
   const session = await getSession();
   if (!session) {
     redirect('/login');
   }
+
+  const resolvedParams = searchParams ? await searchParams : undefined;
 
   const [subjects, connection] = await Promise.all([
     getAllSubjectSummaries(),
@@ -37,6 +43,7 @@ export default async function SubjectsPage() {
       <SubjectsClientView
         initialSubjects={subjects}
         isAdmin={session.role === 'administrator'}
+        initialTeacherFilter={resolvedParams?.teacher}
       />
     </AppShell>
   );

@@ -196,6 +196,31 @@ export interface AcademicGroupSummaryView {
   overall_submission_coverage_percentage: number;
 }
 
+export interface TeacherSubjectInfo {
+  subject_id: string;
+  subject_name: string;
+  academic_group_name: string | null;
+  practical_folders_detected: number;
+  populated_practical_folders: number;
+  total_submission_files: number;
+}
+
+export interface TeacherSummaryView {
+  teacher_id: string;
+  teacher_name: string;
+  is_unassigned: boolean;
+  total_subjects: number;
+  total_expected_practicals: number;
+  total_practical_folders_detected: number;
+  total_populated_practical_folders: number;
+  total_empty_practical_folders: number;
+  total_missing_practical_folders: number;
+  total_submission_files: number;
+  overall_folder_coverage_percentage: number;
+  overall_submission_coverage_percentage: number;
+  subjects: TeacherSubjectInfo[];
+}
+
 export interface CollegeDashboardMetricsView {
   total_academic_groups: number;
   total_subjects: number;

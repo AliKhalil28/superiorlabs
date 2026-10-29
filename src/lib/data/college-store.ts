@@ -6,6 +6,8 @@ import {
   SubmissionFile,
   SyncJob,
   AppUserRole,
+  TeacherSummaryView,
+  TeacherSubjectInfo,
 } from '@/types/database.types';
 import { calculateSubjectProgress, RawPracticalInput } from '@/lib/progress/progress-engine';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -596,6 +598,114 @@ export async function getAllSubjectSummaries(): Promise<SubjectSummaryView[]> {
       submission_coverage_percentage: progress.submissionCoveragePercentage,
     };
   });
+}
+
+/**
+ * Returns summary metrics grouped teacher-wise (Faculty progress)
+ */
+export async function getTeacherSummaries(): Promise<TeacherSummaryView[]> {
+  const subjects = await getAllSubjectSummaries();
+
+  const teacherMap = new Map<
+    string,
+    {
+      teacher_name: string;
+      is_unassigned: boolean;
+      subjects: TeacherSubjectInfo[];
+      total_subjects: number;
+      total_expected_practicals: number;
+      total_practical_folders_detected: number;
+      total_practical_folders_capped: number;
+      total_populated_practical_folders: number;
+      total_empty_practical_folders: number;
+      total_missing_practical_folders: number;
+      total_submission_files: number;
+    }
+  >();
+
+  for (const s of subjects) {
+    const rawTeacher = s.teacher_name?.trim();
+    const isUnassigned =
+      !rawTeacher ||
+      rawTeacher.toLowerCase() === 'unassigned' ||
+      rawTeacher.toLowerCase() === 'not assigned';
+    const teacherName = isUnassigned ? 'Unassigned Teachers' : rawTeacher;
+    const key = isUnassigned ? '__unassigned__' : teacherName.toLowerCase();
+
+    if (!teacherMap.has(key)) {
+      teacherMap.set(key, {
+        teacher_name: teacherName,
+        is_unassigned: isUnassigned,
+        subjects: [],
+        total_subjects: 0,
+        total_expected_practicals: 0,
+        total_practical_folders_detected: 0,
+        total_practical_folders_capped: 0,
+        total_populated_practical_folders: 0,
+        total_empty_practical_folders: 0,
+        total_missing_practical_folders: 0,
+        total_submission_files: 0,
+      });
+    }
+
+    const t = teacherMap.get(key)!;
+    t.total_subjects += 1;
+    t.total_expected_practicals += s.expected_practicals;
+    t.total_practical_folders_detected += s.practical_folders_detected;
+    t.total_practical_folders_capped += s.practical_folders_capped;
+    t.total_populated_practical_folders += s.populated_practical_folders;
+    t.total_empty_practical_folders += s.empty_practical_folders;
+    t.total_missing_practical_folders += s.missing_practical_folders;
+    t.total_submission_files += s.total_submission_files;
+    t.subjects.push({
+      subject_id: s.subject_id,
+      subject_name: s.subject_name,
+      academic_group_name: s.academic_group_name,
+      practical_folders_detected: s.practical_folders_detected,
+      populated_practical_folders: s.populated_practical_folders,
+      total_submission_files: s.total_submission_files,
+    });
+  }
+
+  const list: TeacherSummaryView[] = Array.from(teacherMap.values()).map((t) => {
+    const folderCoverage =
+      t.total_expected_practicals > 0
+        ? Math.round((t.total_practical_folders_capped / t.total_expected_practicals) * 1000) / 10
+        : 0;
+    const submissionCoverage =
+      t.total_expected_practicals > 0
+        ? Math.round((t.total_populated_practical_folders / t.total_expected_practicals) * 1000) / 10
+        : 0;
+
+    const slug = encodeURIComponent(
+      t.teacher_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    );
+
+    return {
+      teacher_id: slug,
+      teacher_name: t.teacher_name,
+      is_unassigned: t.is_unassigned,
+      total_subjects: t.total_subjects,
+      total_expected_practicals: t.total_expected_practicals,
+      total_practical_folders_detected: t.total_practical_folders_detected,
+      total_populated_practical_folders: t.total_populated_practical_folders,
+      total_empty_practical_folders: t.total_empty_practical_folders,
+      total_missing_practical_folders: t.total_missing_practical_folders,
+      total_submission_files: t.total_submission_files,
+      overall_folder_coverage_percentage: folderCoverage,
+      overall_submission_coverage_percentage: submissionCoverage,
+      subjects: t.subjects,
+    };
+  });
+
+  // Sort named teachers alphabetically, unassigned at the end
+  list.sort((a, b) => {
+    if (a.is_unassigned) return 1;
+    if (b.is_unassigned) return -1;
+    return a.teacher_name.localeCompare(b.teacher_name);
+  });
+
+  return list;
 }
 
 /**

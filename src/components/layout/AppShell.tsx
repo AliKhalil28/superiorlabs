@@ -52,6 +52,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   const primaryNavItems = [
     { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Academic Groups', href: '/academics', icon: GraduationCap },
+    { label: 'Faculty Teachers', href: '/teachers', icon: UserCheck },
     { label: 'Subjects & Practicals', href: '/subjects', icon: BookOpen },
   ];
 

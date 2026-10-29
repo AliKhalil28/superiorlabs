@@ -8,12 +8,21 @@ import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ProgressBar } from '@/components/shared/ProgressBar';
 import { getAcademicGroups, getDriveConnection } from '@/lib/data/college-store';
-import { GraduationCap, ArrowRight, FileText } from 'lucide-react';
+import { GraduationCap, ArrowRight, FileText, UserCheck } from 'lucide-react';
 
-export default async function AcademicsPage() {
+interface AcademicsPageProps {
+  searchParams?: Promise<{ view?: string }>;
+}
+
+export default async function AcademicsPage({ searchParams }: AcademicsPageProps) {
   const session = await getSession();
   if (!session) {
     redirect('/login');
+  }
+
+  const resolvedParams = searchParams ? await searchParams : undefined;
+  if (resolvedParams?.view === 'teachers') {
+    redirect('/teachers');
   }
 
   const [groups, connection] = await Promise.all([
@@ -35,6 +44,24 @@ export default async function AcademicsPage() {
           { label: 'Academic Groups' },
         ]}
       />
+
+      {/* Switcher between Academic Programs and Faculty Teachers */}
+      <div className="flex items-center gap-2 mb-6 border-b border-slate-200 pb-4">
+        <Link
+          href="/academics"
+          className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white shadow-xs flex items-center gap-2"
+        >
+          <GraduationCap className="w-4 h-4" />
+          <span>Academic Programs ({groups.length})</span>
+        </Link>
+        <Link
+          href="/teachers"
+          className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2 transition-colors border border-transparent"
+        >
+          <UserCheck className="w-4 h-4 text-slate-500" />
+          <span>Faculty Teachers</span>
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {groups.map((group) => (

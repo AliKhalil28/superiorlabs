@@ -20,15 +20,27 @@ import {
 interface SubjectsClientViewProps {
   initialSubjects: SubjectSummaryView[];
   isAdmin?: boolean;
+  initialTeacherFilter?: string;
 }
 
 export const SubjectsClientView: React.FC<SubjectsClientViewProps> = ({
   initialSubjects,
   isAdmin = false,
+  initialTeacherFilter,
 }) => {
   const [subjectsList, setSubjectsList] = useState<SubjectSummaryView[]>(initialSubjects);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'assigned' | 'unassigned' | 'missing' | 'incomplete' | 'completed'>('all');
+  const [search, setSearch] = useState(() => {
+    if (initialTeacherFilter && initialTeacherFilter.toLowerCase() !== 'unassigned') {
+      return initialTeacherFilter;
+    }
+    return '';
+  });
+  const [filter, setFilter] = useState<'all' | 'assigned' | 'unassigned' | 'missing' | 'incomplete' | 'completed'>(() => {
+    if (initialTeacherFilter && initialTeacherFilter.toLowerCase() === 'unassigned') {
+      return 'unassigned';
+    }
+    return 'all';
+  });
   const [sortBy, setSortBy] = useState<
     'name' | 'teacher_asc' | 'teacher_desc' | 'lowest_coverage' | 'highest_coverage'
   >('name');
@@ -164,6 +176,14 @@ export const SubjectsClientView: React.FC<SubjectsClientViewProps> = ({
             <option value="lowest_coverage">Lowest Submission Coverage</option>
             <option value="highest_coverage">Highest Submission Coverage</option>
           </select>
+
+          <Link
+            href="/teachers"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-semibold transition-colors shrink-0"
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>View Teacher Cards</span>
+          </Link>
         </div>
       </div>
 
