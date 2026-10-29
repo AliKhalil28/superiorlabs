@@ -154,7 +154,7 @@ export default function LoginPage() {
                 onClick={() => handleQuickFill('noor@superiorcollegemc.com')}
                 className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
               >
-                <div className="font-semibold text-slate-900 text-[11px]">Incharge Noor</div>
+                <div className="font-semibold text-slate-900 text-[11px]">Noor Fatima</div>
                 <div className="text-[9px] text-slate-500 truncate">noor@...</div>
               </button>
               <button

@@ -333,7 +333,7 @@ const collegeUsers: CollegeUser[] = [
   {
     id: '3fa3386a-8191-47c2-bf92-a973c7785a70',
     email: 'noor@superiorcollegemc.com',
-    full_name: 'Muhammad Noor (Lab Incharge)',
+    full_name: 'Noor Fatima (Lab Incharge)',
     role: 'viewer',
     is_active: true,
     created_at: '2026-09-02T00:00:00Z',
