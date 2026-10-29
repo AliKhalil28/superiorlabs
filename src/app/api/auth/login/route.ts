@@ -90,7 +90,8 @@ export async function POST(req: NextRequest) {
       success: true,
       user: authenticatedUser,
     });
-  } catch {
+  } catch (err: unknown) {
+    console.error('Login error:', err);
     return NextResponse.json(
       { error: 'An unexpected error occurred during login. Please try again.' },
       { status: 500 }
