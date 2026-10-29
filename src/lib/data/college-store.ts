@@ -331,6 +331,22 @@ const collegeUsers: CollegeUser[] = [
     created_at: '2026-09-01T00:00:00Z',
   },
   {
+    id: '3fa3386a-8191-47c2-bf92-a973c7785a70',
+    email: 'noor@superiorcollegemc.com',
+    full_name: 'Muhammad Noor (Lab Incharge)',
+    role: 'viewer',
+    is_active: true,
+    created_at: '2026-09-02T00:00:00Z',
+  },
+  {
+    id: 'c503df21-ee00-46de-9065-f461a43c53bf',
+    email: 'pervaiz@superiorcollegemc.com',
+    full_name: 'Pervaiz Akhtar (Lab Incharge)',
+    role: 'viewer',
+    is_active: true,
+    created_at: '2026-09-02T00:00:00Z',
+  },
+  {
     id: '5a96be03-7637-429d-8937-874b9cbe6d5c',
     email: 'labincharge@superiorcollegemc.com',
     full_name: 'Lab Incharge',
@@ -1027,5 +1043,27 @@ export async function getSyncJobs(): Promise<SyncJob[]> {
  * Returns authorized college users
  */
 export async function getCollegeUsers(): Promise<CollegeUser[]> {
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (data && !error && data.length > 0) {
+        return data.map((p: any) => ({
+          id: p.id,
+          email: p.email,
+          full_name: p.full_name || p.email,
+          role: p.role,
+          is_active: p.is_active ?? true,
+          created_at: p.created_at,
+        }));
+      }
+    } catch {
+      // Fallback
+    }
+  }
   return collegeUsers;
 }

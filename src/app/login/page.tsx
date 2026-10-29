@@ -41,17 +41,9 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickFill = (role: 'admin' | 'labincharge' | 'hod') => {
-    if (role === 'admin') {
-      setEmail('admin@superiorcollegemc.com');
-      setPassword('Superior2026!');
-    } else if (role === 'labincharge') {
-      setEmail('labincharge@superiorcollegemc.com');
-      setPassword('Superior2026!');
-    } else {
-      setEmail('hod@superiorcollegemc.com');
-      setPassword('Superior2026!');
-    }
+  const handleQuickFill = (accountEmail: string) => {
+    setEmail(accountEmail);
+    setPassword('Superior2026!');
   };
 
   return (
@@ -148,10 +140,10 @@ export default function LoginPage() {
             <span className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">
               College Staff Access Accounts
             </span>
-            <div className="grid grid-cols-3 gap-1.5 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <button
                 type="button"
-                onClick={() => handleQuickFill('admin')}
+                onClick={() => handleQuickFill('admin@superiorcollegemc.com')}
                 className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
               >
                 <div className="font-semibold text-slate-900 text-[11px]">Administrator</div>
@@ -159,15 +151,23 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill('labincharge')}
+                onClick={() => handleQuickFill('noor@superiorcollegemc.com')}
                 className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
               >
-                <div className="font-semibold text-slate-900 text-[11px]">Lab Incharge</div>
-                <div className="text-[9px] text-slate-500 truncate">labincharge@...</div>
+                <div className="font-semibold text-slate-900 text-[11px]">Incharge Noor</div>
+                <div className="text-[9px] text-slate-500 truncate">noor@...</div>
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill('hod')}
+                onClick={() => handleQuickFill('pervaiz@superiorcollegemc.com')}
+                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
+              >
+                <div className="font-semibold text-slate-900 text-[11px]">Incharge Pervaiz</div>
+                <div className="text-[9px] text-slate-500 truncate">pervaiz@...</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('hod@superiorcollegemc.com')}
                 className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
               >
                 <div className="font-semibold text-slate-900 text-[11px]">HOD / Viewer</div>

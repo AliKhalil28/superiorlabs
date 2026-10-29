@@ -114,13 +114,13 @@ export const AppShell: React.FC<AppShellProps> = ({
       {/* Sidebar Navigation */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transition-transform duration-200 ease-in-out border-r border-slate-800 lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transition-transform duration-200 ease-in-out border-r border-slate-800 lg:sticky lg:top-0 lg:h-screen shrink-0',
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <div>
+        <div className="flex flex-col min-h-0 flex-1">
           {/* Brand Header with Official Superior Logo */}
-          <div className="p-4 border-b border-slate-800">
+          <div className="p-4 border-b border-slate-800 shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-full bg-white p-1 flex items-center justify-center shrink-0 shadow-sm border border-slate-700">
                 <Image
@@ -144,7 +144,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           </div>
 
           {/* Nav List */}
-          <nav className="p-3 space-y-6 overflow-y-auto">
+          <nav className="p-3 space-y-6 overflow-y-auto flex-1 min-h-0">
             {/* Primary Section */}
             <div className="space-y-1">
               <span className="px-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
@@ -204,7 +204,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         </div>
 
         {/* User Card & Logout */}
-        <div className="p-4 border-t border-slate-800 space-y-3 bg-slate-950/40">
+        <div className="p-4 border-t border-slate-800 shrink-0 space-y-3 bg-slate-950/40">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-blue-400 shrink-0">
