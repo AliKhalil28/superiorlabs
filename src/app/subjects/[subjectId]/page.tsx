@@ -8,7 +8,7 @@ import { ProgressBar } from '@/components/shared/ProgressBar';
 import { PracticalFolderCard } from '@/components/practicals/PracticalFolderCard';
 import { SubjectTeacherBadge } from '@/components/subjects/SubjectTeacherBadge';
 import { getSubjectById, getDriveConnection } from '@/lib/data/college-store';
-import { BookOpen, Folder, FolderCheck, Info } from 'lucide-react';
+import { BookOpen, Folder, FolderCheck } from 'lucide-react';
 
 interface Props {
   params: Promise<{ subjectId: string }>;
@@ -170,17 +170,6 @@ export default async function SubjectDetailPage({ params }: Props) {
             isVirtualPlaceholder={practical.isVirtualPlaceholder}
           />
         ))}
-      </div>
-
-      {/* Informational Guidance */}
-      <div className="mt-8 p-4 bg-blue-50/50 border border-blue-200/60 rounded-xl flex items-start gap-3 text-xs text-blue-900">
-        <Info className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <span className="font-semibold block">Academic Integrity Notice</span>
-          <p className="text-blue-800 leading-relaxed">
-            The presence of 25 files in Lab 1 represents <strong>1 practical containing 25 files</strong>, not 25 completed practicals. Empty folders (e.g. Lab 3) do not count as submitted until files are present. Missing practicals are calculated targets and will automatically become available once created in Google Drive.
-          </p>
-        </div>
       </div>
     </AppShell>
   );

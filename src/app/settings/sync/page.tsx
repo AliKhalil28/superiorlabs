@@ -6,7 +6,7 @@ import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { getDriveConnection, getSyncJobs } from '@/lib/data/college-store';
-import { Activity, Radio, CheckCircle2, Database } from 'lucide-react';
+import { Activity, Radio, CheckCircle2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 export default async function SyncDiagnosticsPage() {
@@ -128,17 +128,6 @@ export default async function SyncDiagnosticsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
-
-        {/* Database RLS Health */}
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 flex items-start gap-3">
-          <Database className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <span className="font-semibold text-slate-900 block">Row-Level Security & Cache Consistency</span>
-            <p className="text-slate-500 leading-relaxed text-[11px]">
-              PostgreSQL RLS ensures that viewers have read-only access to academic metadata while write operations (manual sync, credential changes, root folder targets) are blocked at the database engine level.
-            </p>
           </div>
         </div>
       </div>

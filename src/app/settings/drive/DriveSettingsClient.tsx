@@ -9,10 +9,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Save,
-  ShieldCheck,
   ExternalLink,
   KeyRound,
-  FolderSync,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
@@ -251,39 +249,6 @@ export const DriveSettingsClient: React.FC<DriveSettingsClientProps> = ({ initia
             </button>
           </div>
         </form>
-      </div>
-
-      {/* Guide Card */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 text-xs text-blue-900 space-y-3">
-        <div className="flex items-center gap-2 font-bold text-blue-950">
-          <FolderSync className="w-4 h-4 text-blue-700" />
-          <span>How to Connect Real Google Drive in 4 Steps</span>
-        </div>
-        <ol className="list-decimal list-inside space-y-2 text-[11px] text-blue-800 leading-relaxed">
-          <li>
-            <strong>Configure OAuth in Google Cloud:</strong> Create an OAuth 2.0 Web Client in Google Cloud Console with scope <code>drive.metadata.readonly</code> and redirect URI <code>/api/auth/google/callback</code>.
-          </li>
-          <li>
-            <strong>Add Environment Variables:</strong> Set <code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code>, <code>GOOGLE_REDIRECT_URI</code>, and <code>GOOGLE_TOKEN_ENCRYPTION_KEY</code> in your Vercel or <code>.env.local</code> settings.
-          </li>
-          <li>
-            <strong>Authorize Account:</strong> Click the <strong>&quot;Authorize with Google&quot;</strong> button above to connect the college Google Workspace account.
-          </li>
-          <li>
-            <strong>Paste Root Folder &amp; Run Sync:</strong> Paste your college lab root folder ID or URL above, click <strong>&quot;Save Configuration&quot;</strong>, then click <strong>&quot;Run Sync Now&quot;</strong>.
-          </li>
-        </ol>
-      </div>
-
-      {/* Security notice */}
-      <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 flex items-start gap-3">
-        <ShieldCheck className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <span className="font-semibold text-slate-900 block">Least Privilege Scopes Enforced</span>
-          <p className="text-slate-500 leading-relaxed text-[11px]">
-            Google OAuth connection requests read-only metadata scope (<code>drive.metadata.readonly</code>). The application never downloads, reads, or executes student code or files. Refresh tokens are AES-256-GCM encrypted on the server.
-          </p>
-        </div>
       </div>
     </div>
   );

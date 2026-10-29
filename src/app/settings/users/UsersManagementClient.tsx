@@ -274,29 +274,6 @@ export const UsersManagementClient: React.FC<UsersManagementClientProps> = ({
         </div>
       )}
 
-      {/* Role Matrix Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs space-y-2">
-          <div className="flex items-center gap-2 text-blue-700">
-            <ShieldCheck className="w-5 h-5" />
-            <h3 className="font-bold text-sm text-slate-900">Administrator Role</h3>
-          </div>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            Full control over Google Drive OAuth, root folder selection, hierarchy mapping heuristics, manual synchronization, teacher assignment, and staff user provisioning.
-          </p>
-        </div>
-
-        <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs space-y-2">
-          <div className="flex items-center gap-2 text-emerald-700">
-            <UserCheck className="w-5 h-5" />
-            <h3 className="font-bold text-sm text-slate-900">Viewer Role (Lab Incharge & HOD)</h3>
-          </div>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            View-only access to academic programs, subjects, practical folders, student counts, and coverage. Cannot edit hierarchy or view raw student Drive files.
-          </p>
-        </div>
-      </div>
-
       {/* Authorized Users Management Card */}
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/60">

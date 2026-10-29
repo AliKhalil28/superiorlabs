@@ -6,7 +6,7 @@ import { getSession } from '@/lib/auth/session';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { getDriveConnection } from '@/lib/data/college-store';
-import { CheckCircle2, ShieldCheck, Layers, HelpCircle } from 'lucide-react';
+import { CheckCircle2, Layers, HelpCircle } from 'lucide-react';
 
 export default async function HierarchySettingsPage() {
   const session = await getSession();
@@ -143,17 +143,6 @@ export default async function HierarchySettingsPage() {
             <span className="text-[11px] text-slate-400 mt-0.5 block">
               All folders under &quot;{connection.root_folder_name}&quot; have been mapped with confidence &gt; 90%.
             </span>
-          </div>
-        </div>
-
-        {/* Guidelines */}
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 flex items-start gap-3">
-          <ShieldCheck className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <span className="font-semibold text-slate-900 block">Non-Destructive Synchronization</span>
-            <p className="text-slate-500 leading-relaxed text-[11px]">
-              The synchronization engine never deletes or mutates folders on Google Drive. If a new folder is created, it is classified automatically on the next scan according to these depth and name rules.
-            </p>
           </div>
         </div>
       </div>

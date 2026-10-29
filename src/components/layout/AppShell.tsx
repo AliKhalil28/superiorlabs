@@ -262,13 +262,6 @@ export const AppShell: React.FC<AppShellProps> = ({
               isAdmin={isAdmin}
               onRefresh={handleManualSync}
             />
-
-            <span className="text-slate-200">|</span>
-
-            <div className="flex items-center gap-1.5 text-xs text-slate-600">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>Role: <strong className="text-slate-800 capitalize">{user?.role || 'Viewer'}</strong></span>
-            </div>
           </div>
         </header>
 

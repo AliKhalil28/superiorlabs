@@ -283,33 +283,6 @@ export default async function DashboardPage() {
           </table>
         </div>
       </div>
-
-      {/* College Drive Connection Info Banner */}
-      <div className="p-4 bg-slate-900 text-white rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
-            <HardDrive className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="text-xs text-slate-400 font-medium">Synchronized Google Drive Root</div>
-            <div className="text-sm font-semibold text-white">
-              {connection.root_folder_name} ({connection.root_folder_id})
-            </div>
-            <div className="text-[11px] text-slate-400 mt-0.5">
-              Authorized Account: {connection.connected_email} · Last Successful Sync: {formatDate(connection.last_successful_sync)}
-            </div>
-          </div>
-        </div>
-
-        {session.role === 'administrator' && (
-          <Link
-            href="/settings/drive"
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors shrink-0 text-center"
-          >
-            Configure Drive Connection
-          </Link>
-        )}
-      </div>
     </AppShell>
   );
 }
