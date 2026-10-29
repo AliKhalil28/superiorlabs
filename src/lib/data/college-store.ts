@@ -382,6 +382,34 @@ const syncJobs: SyncJob[] = [
  * Reads college dashboard metrics
  */
 export async function getDashboardMetrics(): Promise<CollegeDashboardMetricsView> {
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('college_dashboard_metrics_view')
+        .select('*')
+        .maybeSingle();
+
+      if (data && !error && Number(data.total_subjects) > 0) {
+        return {
+          total_academic_groups: Number(data.total_academic_groups),
+          total_subjects: Number(data.total_subjects),
+          total_expected_practicals: Number(data.total_expected_practicals),
+          total_practical_folders_detected: Number(data.total_practical_folders_detected),
+          total_practical_folders_with_submissions: Number(data.total_practical_folders_with_submissions),
+          total_empty_practical_folders: Number(data.total_empty_practical_folders),
+          total_missing_practical_folders: Number(data.total_missing_practical_folders),
+          total_submission_files: Number(data.total_submission_files),
+          last_successful_sync: data.last_successful_sync || currentDriveConnection.last_successful_sync,
+          current_sync_status: data.current_sync_status || currentDriveConnection.sync_status,
+          connection_status: data.connection_status || currentDriveConnection.connection_status,
+        };
+      }
+    } catch {
+      // Fallback to memory store if query fails
+    }
+  }
+
   const allSubjectSummaries = await getAllSubjectSummaries();
 
   let totalDetected = 0;
@@ -419,6 +447,36 @@ export async function getDashboardMetrics(): Promise<CollegeDashboardMetricsView
  * Returns all academic groups with summary metrics
  */
 export async function getAcademicGroups(): Promise<AcademicGroupSummaryView[]> {
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('academic_group_summary_view')
+        .select('*')
+        .order('academic_group_name', { ascending: true });
+
+      if (data && !error && data.length > 0) {
+        return data.map((d: any) => ({
+          academic_group_id: d.academic_group_id,
+          drive_folder_id: d.drive_folder_id,
+          academic_group_name: d.academic_group_name,
+          parent_group_id: d.parent_group_id,
+          total_subjects: Number(d.total_subjects),
+          total_expected_practicals: Number(d.total_expected_practicals),
+          total_practical_folders_detected: Number(d.total_practical_folders_detected),
+          total_populated_practical_folders: Number(d.total_populated_practical_folders),
+          total_empty_practical_folders: Number(d.total_empty_practical_folders),
+          total_missing_practical_folders: Number(d.total_missing_practical_folders),
+          total_submission_files: Number(d.total_submission_files),
+          overall_folder_coverage_percentage: Number(d.overall_folder_coverage_percentage),
+          overall_submission_coverage_percentage: Number(d.overall_submission_coverage_percentage),
+        }));
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
   const subjectSummaries = await getAllSubjectSummaries();
 
   return academicGroups.map((grp) => {
@@ -458,13 +516,48 @@ export async function getAcademicGroups(): Promise<AcademicGroupSummaryView[]> {
  */
 export async function getAcademicGroupById(groupId: string) {
   const grps = await getAcademicGroups();
-  return grps.find((g) => g.academic_group_id === groupId) || null;
+  return (
+    grps.find(
+      (g) => g.academic_group_id === groupId || g.drive_folder_id === groupId
+    ) || null
+  );
 }
 
 /**
  * Returns all subject summaries with progress
  */
 export async function getAllSubjectSummaries(): Promise<SubjectSummaryView[]> {
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('subject_summary_view')
+        .select('*')
+        .order('subject_name', { ascending: true });
+
+      if (data && !error && data.length > 0) {
+        return data.map((s: any) => ({
+          subject_id: s.subject_id,
+          drive_folder_id: s.drive_folder_id,
+          subject_name: s.subject_name,
+          academic_group_id: s.academic_group_id,
+          academic_group_name: s.academic_group_name,
+          expected_practicals: Number(s.expected_practicals),
+          practical_folders_detected: Number(s.practical_folders_detected),
+          practical_folders_capped: Number(s.practical_folders_capped),
+          missing_practical_folders: Number(s.missing_practical_folders),
+          populated_practical_folders: Number(s.populated_practical_folders),
+          empty_practical_folders: Number(s.empty_practical_folders),
+          total_submission_files: Number(s.total_submission_files),
+          folder_coverage_percentage: Number(s.folder_coverage_percentage),
+          submission_coverage_percentage: Number(s.submission_coverage_percentage),
+        }));
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
   return subjects.map((subj) => {
     const rawPracticals = rawPracticalsStore[subj.id] || [];
     const progress = calculateSubjectProgress(subj.id, subj.name, rawPracticals, subj.expectedPracticals);
@@ -492,7 +585,67 @@ export async function getAllSubjectSummaries(): Promise<SubjectSummaryView[]> {
  * Returns subject by ID with full 10-practical breakdown
  */
 export async function getSubjectById(subjectId: string) {
-  const subj = subjects.find((s) => s.id === subjectId);
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      // Support querying either by UUID or by Drive folder ID
+      const query = supabase
+        .from('subjects')
+        .select('id, name, drive_folder_id, academic_group_id, expected_practicals, academic_groups(id, name)');
+
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subjectId);
+      const { data: subj } = isUuid
+        ? await query.eq('id', subjectId).maybeSingle()
+        : await query.eq('drive_folder_id', subjectId).maybeSingle();
+
+      if (subj) {
+        const { data: practicals } = await supabase
+          .from('practical_folders')
+          .select('id, name, practical_number, drive_folder_id, drive_modified_time, classification_status, submission_files(id, drive_file_id, is_trashed)')
+          .eq('subject_id', subj.id)
+          .order('practical_number', { ascending: true });
+
+        const rawPracticals: RawPracticalInput[] = (practicals || []).map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          driveFolderId: p.drive_folder_id,
+          practicalNumber: p.practical_number,
+          classificationStatus: p.classification_status === 'identified' ? 'identified' : 'needs_review',
+          driveModifiedTime: p.drive_modified_time,
+          files: (p.submission_files || []).map((f: any) => ({
+            id: f.id,
+            driveFileId: f.drive_file_id,
+            isTrashed: f.is_trashed,
+          })),
+        }));
+
+        const progress = calculateSubjectProgress(
+          subj.id,
+          subj.name,
+          rawPracticals,
+          subj.expected_practicals || 10
+        );
+
+        const groupName = Array.isArray(subj.academic_groups)
+          ? subj.academic_groups[0]?.name
+          : (subj.academic_groups as any)?.name || 'Academic Group';
+
+        return {
+          id: subj.id,
+          name: subj.name,
+          driveFolderId: subj.drive_folder_id,
+          academicGroupId: subj.academic_group_id,
+          academicGroupName: groupName,
+          expectedPracticals: subj.expected_practicals || 10,
+          progress,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  const subj = subjects.find((s) => s.id === subjectId || s.driveFolderId === subjectId);
   if (!subj) return null;
 
   const rawPracticals = rawPracticalsStore[subj.id] || [];
@@ -508,8 +661,63 @@ export async function getSubjectById(subjectId: string) {
  * Returns practical folder details and files
  */
 export async function getPracticalById(practicalId: string) {
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      const query = supabase
+        .from('practical_folders')
+        .select('id, name, practical_number, drive_folder_id, subject_id, drive_modified_time, subjects(id, name, academic_groups(id, name))');
+
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(practicalId);
+      const { data: practical } = isUuid
+        ? await query.eq('id', practicalId).maybeSingle()
+        : await query.eq('drive_folder_id', practicalId).maybeSingle();
+
+      if (practical) {
+        const { data: files } = await supabase
+          .from('submission_files')
+          .select('*')
+          .eq('practical_folder_id', practical.id)
+          .eq('is_trashed', false)
+          .order('name', { ascending: true });
+
+        const subj = Array.isArray(practical.subjects) ? practical.subjects[0] : (practical.subjects as any);
+        const group = subj?.academic_groups ? (Array.isArray(subj.academic_groups) ? subj.academic_groups[0] : subj.academic_groups) : null;
+
+        return {
+          id: practical.id,
+          name: practical.name,
+          practicalNumber: practical.practical_number,
+          driveFolderId: practical.drive_folder_id,
+          subjectId: practical.subject_id,
+          subjectName: subj?.name || 'Subject',
+          academicGroupName: group?.name || 'Academic Group',
+          driveModifiedTime: practical.drive_modified_time,
+          fileCount: (files || []).length,
+          files: (files || []).map((f: any) => ({
+            id: f.id,
+            drive_file_id: f.drive_file_id,
+            practical_folder_id: f.practical_folder_id,
+            name: f.name,
+            extension: f.extension,
+            mime_type: f.mime_type,
+            file_size: f.file_size,
+            web_view_link: f.web_view_link,
+            drive_modified_time: f.drive_modified_time,
+            is_trashed: f.is_trashed,
+            last_seen_at: f.last_seen_at,
+            created_at: f.created_at,
+            updated_at: f.updated_at,
+          })),
+        };
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
   for (const [subjId, practicals] of Object.entries(rawPracticalsStore)) {
-    const found = practicals.find((p) => p.id === practicalId);
+    const found = practicals.find((p) => p.id === practicalId || p.driveFolderId === practicalId);
     if (found) {
       const subj = subjects.find((s) => s.id === subjId);
       let files: SubmissionFile[] = [];
@@ -568,6 +776,71 @@ export async function searchGlobalMetadata(query: string) {
   }
 
   const clean = query.trim().toLowerCase();
+  const supabase = createAdminClient();
+
+  if (supabase) {
+    try {
+      const [groupsRes, subjectsRes, practicalsRes, filesRes] = await Promise.all([
+        supabase.from('academic_groups').select('id, name, drive_folder_id').ilike('name', `%${clean}%`).limit(15),
+        supabase.from('subjects').select('id, name, drive_folder_id, academic_groups(name)').ilike('name', `%${clean}%`).limit(15),
+        supabase.from('practical_folders').select('id, name, drive_folder_id, subjects(id, name, academic_groups(name))').ilike('name', `%${clean}%`).limit(20),
+        supabase.from('submission_files').select('id, name, extension, drive_modified_time, web_view_link, practical_folders(id, name, subjects(name, academic_groups(name)))').ilike('name', `%${clean}%`).limit(30),
+      ]);
+
+      if (
+        (groupsRes.data && groupsRes.data.length > 0) ||
+        (subjectsRes.data && subjectsRes.data.length > 0) ||
+        (practicalsRes.data && practicalsRes.data.length > 0) ||
+        (filesRes.data && filesRes.data.length > 0)
+      ) {
+        return {
+          academicGroups: (groupsRes.data || []).map((g: any) => ({
+            id: g.id,
+            name: g.name,
+            driveFolderId: g.drive_folder_id,
+            parentGroupId: null,
+          })),
+          subjects: (subjectsRes.data || []).map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            driveFolderId: s.drive_folder_id,
+            academicGroupId: '',
+            academicGroupName: (Array.isArray(s.academic_groups) ? s.academic_groups[0]?.name : s.academic_groups?.name) || '',
+            expectedPracticals: 10,
+          })),
+          practicals: (practicalsRes.data || []).map((p: any) => {
+            const subj = Array.isArray(p.subjects) ? p.subjects[0] : p.subjects;
+            const group = subj?.academic_groups ? (Array.isArray(subj.academic_groups) ? subj.academic_groups[0] : subj.academic_groups) : null;
+            return {
+              id: p.id,
+              name: p.name,
+              subjectName: subj?.name || '',
+              academicGroupName: group?.name || '',
+              fileCount: 0,
+            };
+          }),
+          files: (filesRes.data || []).map((f: any) => {
+            const pf = Array.isArray(f.practical_folders) ? f.practical_folders[0] : f.practical_folders;
+            const subj = pf?.subjects ? (Array.isArray(pf.subjects) ? pf.subjects[0] : pf.subjects) : null;
+            const group = subj?.academic_groups ? (Array.isArray(subj.academic_groups) ? subj.academic_groups[0] : subj.academic_groups) : null;
+            return {
+              id: f.id,
+              name: f.name,
+              extension: f.extension,
+              modifiedTime: f.drive_modified_time,
+              practicalId: pf?.id || '',
+              practicalName: pf?.name || '',
+              subjectName: subj?.name || '',
+              academicGroupName: group?.name || '',
+              webViewLink: f.web_view_link,
+            };
+          }),
+        };
+      }
+    } catch {
+      // Fallback
+    }
+  }
 
   const matchedGroups = academicGroups.filter((g) => g.name.toLowerCase().includes(clean));
   const matchedSubjects = subjects.filter((s) => s.name.toLowerCase().includes(clean));
@@ -680,6 +953,35 @@ export async function updateDriveConnection(
  * Returns sync jobs
  */
 export async function getSyncJobs(): Promise<SyncJob[]> {
+  const supabase = createAdminClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('sync_jobs')
+        .select('*')
+        .order('started_at', { ascending: false })
+        .limit(25);
+
+      if (data && !error && data.length > 0) {
+        return data.map((j: any) => ({
+          id: j.id,
+          job_type: j.job_type,
+          status: j.status,
+          started_at: j.started_at,
+          completed_at: j.completed_at,
+          folders_discovered: Number(j.folders_discovered),
+          files_discovered: Number(j.files_discovered),
+          errors: Array.isArray(j.errors) ? j.errors : [],
+          warnings: Array.isArray(j.warnings) ? j.warnings : [],
+          triggered_by: j.triggered_by,
+          created_at: j.created_at || j.started_at,
+        }));
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
   return syncJobs;
 }
 

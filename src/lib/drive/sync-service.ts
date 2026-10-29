@@ -1,8 +1,11 @@
 import { getAuthenticatedDriveClient } from './oauth';
 import { classifyDriveHierarchy, DriveItemRaw } from './hierarchy';
+import { recognizePracticalFolderName } from './practical-recognizer';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { SyncStatus } from '@/types/database.types';
 import type { drive_v3 } from 'googleapis';
+
+const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
 export interface SyncResult {
   success: boolean;
@@ -95,23 +98,230 @@ export async function runDriveSync(
           currentToken = listResult.data.nextPageToken;
         }
 
-        // Classify hierarchy
-        const classified = classifyDriveHierarchy(rootFolderId, allItems);
+        // Build item lookup and parent-children index
+        const itemMap = new Map<string, DriveItemRaw>();
+        const childrenMap = new Map<string, string[]>();
 
-        let folderCount = 0;
-        let fileCount = 0;
+        for (const item of allItems) {
+          itemMap.set(item.id, item);
+          const parentId = item.parents?.[0] || rootFolderId;
+          const existing = childrenMap.get(parentId) || [];
+          existing.push(item.id);
+          childrenMap.set(parentId, existing);
+        }
 
-        for (const node of classified) {
-          if (node.classification === 'submission_file') {
-            fileCount++;
-          } else {
-            folderCount++;
+        // 1. Process Academic Programs & Semesters (e.g. BSSE -> SE 3rd, SE 5th)
+        const rootChildren = childrenMap.get(rootFolderId) || [];
+        const programFolders = rootChildren
+          .map((id) => itemMap.get(id))
+          .filter(
+            (item): item is DriveItemRaw =>
+              !!item &&
+              item.mimeType === FOLDER_MIME &&
+              ['BSSE', 'BSCS', 'BSIT', 'SE', 'CS', 'IT'].some((p) =>
+                item.name.toUpperCase().includes(p)
+              )
+          );
+
+        // Fallback: If no top-level named BSSE/BSCS/BSIT, treat all root folders with subfolders as academic programs
+        const effectiveProgramFolders =
+          programFolders.length > 0
+            ? programFolders
+            : rootChildren
+                .map((id) => itemMap.get(id))
+                .filter((item): item is DriveItemRaw => !!item && item.mimeType === FOLDER_MIME);
+
+        const groupsToInsert: Array<{
+          drive_folder_id: string;
+          name: string;
+          relative_path: string;
+        }> = [];
+        const semToSubjMap = new Map<string, string[]>();
+
+        for (const prog of effectiveProgramFolders) {
+          const progCleanName = prog.name.trim();
+          const semFolderIds = childrenMap.get(prog.id) || [];
+
+          for (const semId of semFolderIds) {
+            const sem = itemMap.get(semId);
+            if (!sem || sem.mimeType !== FOLDER_MIME) continue;
+
+            const semCleanName = sem.name.trim();
+            const groupName = `${progCleanName} - ${semCleanName}`;
+
+            groupsToInsert.push({
+              drive_folder_id: sem.id,
+              name: groupName,
+              relative_path: `${progCleanName} / ${semCleanName}`,
+            });
+
+            semToSubjMap.set(sem.id, childrenMap.get(sem.id) || []);
           }
         }
 
-        // If Supabase is connected, persist records
+        let totalDiscoveredGroups = 0;
+        let totalDiscoveredSubjects = 0;
+        let totalDiscoveredPracticals = 0;
+        let totalDiscoveredFiles = 0;
+
+        if (supabase && groupsToInsert.length > 0) {
+          // Upsert Academic Groups
+          const { data: insertedGroups, error: groupErr } = await supabase
+            .from('academic_groups')
+            .upsert(groupsToInsert, { onConflict: 'drive_folder_id' })
+            .select('id, drive_folder_id');
+
+          if (groupErr) {
+            warnings.push(`Groups persistence error: ${groupErr.message}`);
+          }
+
+          const groupIdMap = new Map<string, string>();
+          (insertedGroups || []).forEach((g) => groupIdMap.set(g.drive_folder_id, g.id));
+          totalDiscoveredGroups = (insertedGroups || []).length;
+
+          // 2. Process Subjects
+          const subjectsToInsert: Array<{
+            drive_folder_id: string;
+            name: string;
+            academic_group_id: string;
+            expected_practicals: number;
+          }> = [];
+          const subjToPracticalMap = new Map<string, string[]>();
+
+          for (const [semId, subjIds] of semToSubjMap.entries()) {
+            const academicGroupId = groupIdMap.get(semId);
+            if (!academicGroupId) continue;
+
+            for (const subjId of subjIds) {
+              const subj = itemMap.get(subjId);
+              if (!subj || subj.mimeType !== FOLDER_MIME) continue;
+
+              subjectsToInsert.push({
+                drive_folder_id: subj.id,
+                name: subj.name.trim(),
+                academic_group_id: academicGroupId,
+                expected_practicals: 10,
+              });
+
+              subjToPracticalMap.set(subj.id, childrenMap.get(subj.id) || []);
+            }
+          }
+
+          if (subjectsToInsert.length > 0) {
+            const { data: insertedSubjects, error: subjErr } = await supabase
+              .from('subjects')
+              .upsert(subjectsToInsert, { onConflict: 'drive_folder_id' })
+              .select('id, drive_folder_id');
+
+            if (subjErr) {
+              warnings.push(`Subjects persistence error: ${subjErr.message}`);
+            }
+
+            const subjIdMap = new Map<string, string>();
+            (insertedSubjects || []).forEach((s) => subjIdMap.set(s.drive_folder_id, s.id));
+            totalDiscoveredSubjects = (insertedSubjects || []).length;
+
+            // 3. Process Practical Folders
+            const practicalsToInsert: Array<{
+              drive_folder_id: string;
+              name: string;
+              subject_id: string;
+              practical_number: number;
+              classification_status: 'identified' | 'unmatched';
+              drive_modified_time: string;
+            }> = [];
+            const practicalToFileMap = new Map<string, string[]>();
+
+            for (const [subjDriveId, pIds] of subjToPracticalMap.entries()) {
+              const subjectId = subjIdMap.get(subjDriveId);
+              if (!subjectId) continue;
+
+              for (const pId of pIds) {
+                const p = itemMap.get(pId);
+                if (!p || p.mimeType !== FOLDER_MIME) continue;
+
+                const labRec = recognizePracticalFolderName(p.name);
+                practicalsToInsert.push({
+                  drive_folder_id: p.id,
+                  name: p.name.trim(),
+                  subject_id: subjectId,
+                  practical_number: labRec.practicalNumber || 1,
+                  classification_status: labRec.isPractical ? 'identified' : 'unmatched',
+                  drive_modified_time: p.modifiedTime || new Date().toISOString(),
+                });
+
+                practicalToFileMap.set(p.id, childrenMap.get(p.id) || []);
+              }
+            }
+
+            if (practicalsToInsert.length > 0) {
+              const { data: insertedPracticals, error: pErr } = await supabase
+                .from('practical_folders')
+                .upsert(practicalsToInsert, { onConflict: 'drive_folder_id' })
+                .select('id, drive_folder_id');
+
+              if (pErr) {
+                warnings.push(`Practicals persistence error: ${pErr.message}`);
+              }
+
+              const practicalIdMap = new Map<string, string>();
+              (insertedPracticals || []).forEach((p) =>
+                practicalIdMap.set(p.drive_folder_id, p.id)
+              );
+              totalDiscoveredPracticals = (insertedPracticals || []).length;
+
+              // 4. Process Submission Files
+              const filesToInsert: Array<{
+                drive_file_id: string;
+                practical_folder_id: string;
+                name: string;
+                extension: string | null;
+                mime_type: string | null;
+                file_size: number | null;
+                web_view_link: string | null;
+                drive_modified_time: string;
+              }> = [];
+
+              for (const [pDriveId, fileIds] of practicalToFileMap.entries()) {
+                const practicalFolderId = practicalIdMap.get(pDriveId);
+                if (!practicalFolderId) continue;
+
+                for (const fId of fileIds) {
+                  const f = itemMap.get(fId);
+                  if (!f || f.mimeType === FOLDER_MIME) continue;
+
+                  const extMatch = f.name.match(/\.([0-9a-z]+)$/i);
+                  filesToInsert.push({
+                    drive_file_id: f.id,
+                    practical_folder_id: practicalFolderId,
+                    name: f.name.trim(),
+                    extension: extMatch ? extMatch[1].toLowerCase() : null,
+                    mime_type: f.mimeType || null,
+                    file_size: f.size ? parseInt(f.size, 10) : null,
+                    web_view_link: f.webViewLink || null,
+                    drive_modified_time: f.modifiedTime || new Date().toISOString(),
+                  });
+                }
+              }
+
+              // Batch in chunks of 200
+              const CHUNK_SIZE = 200;
+              for (let i = 0; i < filesToInsert.length; i += CHUNK_SIZE) {
+                const chunk = filesToInsert.slice(i, i + CHUNK_SIZE);
+                const { error: fErr } = await supabase
+                  .from('submission_files')
+                  .upsert(chunk, { onConflict: 'drive_file_id' });
+                if (fErr) {
+                  warnings.push(`Files chunk persistence error: ${fErr.message}`);
+                }
+              }
+              totalDiscoveredFiles = filesToInsert.length;
+            }
+          }
+        }
+
+        // If Supabase is connected, update connection metadata and record sync job
         if (supabase) {
-          // Update drive_connections table
           await supabase
             .from('drive_connections')
             .update({
@@ -122,12 +332,11 @@ export async function runDriveSync(
             })
             .eq('root_folder_id', rootFolderId);
 
-          // Record sync job
           await supabase.from('sync_jobs').insert({
             job_type: jobType,
             status: 'completed',
-            folders_discovered: folderCount,
-            files_discovered: fileCount,
+            folders_discovered: totalDiscoveredGroups + totalDiscoveredSubjects + totalDiscoveredPracticals,
+            files_discovered: totalDiscoveredFiles,
             errors,
             warnings,
             completed_at: new Date().toISOString(),
@@ -138,8 +347,8 @@ export async function runDriveSync(
           success: true,
           jobType,
           status: 'successful',
-          foldersDiscovered: folderCount,
-          filesDiscovered: fileCount,
+          foldersDiscovered: totalDiscoveredGroups + totalDiscoveredSubjects + totalDiscoveredPracticals,
+          filesDiscovered: totalDiscoveredFiles,
           warnings,
           errors,
           completedAt: new Date().toISOString(),
