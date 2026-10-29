@@ -268,11 +268,7 @@ export const SubjectsClientView: React.FC<SubjectsClientViewProps> = ({
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[11px] font-mono text-slate-400 truncate max-w-[150px]">
-                  ID: {subj.drive_folder_id}
-                </span>
-
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end">
                 <Link
                   href={`/subjects/${subj.subject_id}`}
                   className="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors"

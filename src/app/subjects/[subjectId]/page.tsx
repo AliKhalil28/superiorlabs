@@ -59,8 +59,6 @@ export default async function SubjectDetailPage({ params }: Props) {
               <h2 className="text-xl font-bold text-slate-900">{subject.name}</h2>
               <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-slate-500">
                 <span className="font-medium text-slate-700">{subject.academicGroupName}</span>
-                <span>•</span>
-                <span className="font-mono text-[11px] text-slate-400">Drive ID: {subject.driveFolderId}</span>
               </div>
             </div>
           </div>

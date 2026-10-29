@@ -41,11 +41,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickFill = (accountEmail: string) => {
-    setEmail(accountEmail);
-    setPassword('Superior2026!');
-  };
-
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col justify-center items-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
@@ -134,50 +129,6 @@ export default function LoginPage() {
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
-
-          {/* Quick Institutional Credentials Helper */}
-          <div className="mt-6 pt-5 border-t border-slate-200 space-y-2">
-            <span className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">
-              College Staff Access Accounts
-            </span>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => handleQuickFill('admin@superiorcollegemc.com')}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
-              >
-                <div className="font-semibold text-slate-900 text-[11px]">Administrator</div>
-                <div className="text-[9px] text-slate-500 truncate">admin@...</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('noor@superiorcollegemc.com')}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
-              >
-                <div className="font-semibold text-slate-900 text-[11px]">Noor Fatima</div>
-                <div className="text-[9px] text-slate-500 truncate">noor@...</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('pervaiz@superiorcollegemc.com')}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
-              >
-                <div className="font-semibold text-slate-900 text-[11px]">Incharge Pervaiz</div>
-                <div className="text-[9px] text-slate-500 truncate">pervaiz@...</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('hod@superiorcollegemc.com')}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-left transition-colors"
-              >
-                <div className="font-semibold text-slate-900 text-[11px]">HOD / Viewer</div>
-                <div className="text-[9px] text-slate-500 truncate">hod@...</div>
-              </button>
-            </div>
-            <p className="text-[10px] text-slate-400 text-center mt-1">
-              Default college staff password: <span className="font-mono text-slate-600">Superior2026!</span>
-            </p>
-          </div>
         </div>
       </div>
     </div>

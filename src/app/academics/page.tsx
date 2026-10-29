@@ -99,11 +99,7 @@ export default async function AcademicsPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-mono text-[11px]">
-                Drive ID: {group.drive_folder_id}
-              </span>
-
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-end">
               <Link
                 href={`/academics/${group.academic_group_id}`}
                 className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors"
