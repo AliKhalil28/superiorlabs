@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/session';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@supabase/supabase-js';
 
 interface RouteContext {
   params: Promise<{ userId: string }>;
@@ -24,13 +25,72 @@ export async function PUT(req: NextRequest, context: RouteContext) {
 
   try {
     const body = await req.json();
-    const { password, fullName, role, isActive } = body;
+    const { password, currentPassword, fullName, role, isActive } = body;
 
-    // Direct password reset / override (without previous password)
+    // 1. Fetch current target profile from database
+    const { data: targetProfile, error: targetErr } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (targetErr || !targetProfile) {
+      return NextResponse.json({ error: 'Target user not found' }, { status: 404 });
+    }
+
+    const isTargetAdmin = targetProfile.role === 'administrator';
+
+    // 2. ENFORCE RULE: Admin role is permanent and NOT changeable
+    if (isTargetAdmin) {
+      if (role !== undefined && role !== 'administrator') {
+        return NextResponse.json(
+          { error: 'Administrator role is locked and cannot be modified or demoted.' },
+          { status: 400 }
+        );
+      }
+      if (isActive !== undefined && isActive === false) {
+        return NextResponse.json(
+          { error: 'Administrator accounts cannot be disabled.' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // 3. ENFORCE RULE: Password change logic
     if (password !== undefined) {
       if (typeof password !== 'string' || password.length < 6) {
-        return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
+        return NextResponse.json({ error: 'New password must be at least 6 characters' }, { status: 400 });
       }
+
+      // If target is Administrator: PREVIOUS password is REQUIRED
+      if (isTargetAdmin) {
+        if (!currentPassword || typeof currentPassword !== 'string') {
+          return NextResponse.json(
+            { error: 'Current (previous) password is required to change administrator credentials.' },
+            { status: 400 }
+          );
+        }
+
+        // Verify current password against Supabase Auth
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+        const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+          auth: { persistSession: false },
+        });
+
+        const { error: verifyErr } = await authClient.auth.signInWithPassword({
+          email: targetProfile.email,
+          password: currentPassword,
+        });
+
+        if (verifyErr) {
+          return NextResponse.json(
+            { error: 'Incorrect previous password. Please verify your current administrator password.' },
+            { status: 400 }
+          );
+        }
+      }
+      // For non-admin (viewers): previous password is NOT required; admin directly overrides.
 
       const { error: pwdErr } = await supabase.auth.admin.updateUserById(userId, {
         password: password,
@@ -41,7 +101,7 @@ export async function PUT(req: NextRequest, context: RouteContext) {
       }
     }
 
-    // Profile metadata / role / status update
+    // 4. Profile metadata updates
     const profileUpdates: Record<string, any> = {
       updated_at: new Date().toISOString(),
     };
@@ -53,14 +113,14 @@ export async function PUT(req: NextRequest, context: RouteContext) {
       profileUpdates.full_name = fullName.trim();
     }
 
-    if (role !== undefined) {
+    if (role !== undefined && !isTargetAdmin) {
       if (!['administrator', 'viewer'].includes(role)) {
         return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
       }
       profileUpdates.role = role;
     }
 
-    if (isActive !== undefined) {
+    if (isActive !== undefined && !isTargetAdmin) {
       profileUpdates.is_active = Boolean(isActive);
     }
 
@@ -75,10 +135,10 @@ export async function PUT(req: NextRequest, context: RouteContext) {
         return NextResponse.json({ error: updateErr.message }, { status: 500 });
       }
 
-      // Also update Auth metadata to keep them in sync
+      // Keep Auth metadata in sync
       const metaUpdates: Record<string, any> = {};
       if (fullName !== undefined) metaUpdates.full_name = fullName.trim();
-      if (role !== undefined) metaUpdates.role = role;
+      if (role !== undefined && !isTargetAdmin) metaUpdates.role = role;
 
       if (Object.keys(metaUpdates).length > 0) {
         await supabase.auth.admin.updateUserById(userId, {
@@ -87,7 +147,7 @@ export async function PUT(req: NextRequest, context: RouteContext) {
       }
     }
 
-    // Fetch and return the updated profile
+    // Return the updated profile
     const { data: updatedProfile } = await supabase
       .from('profiles')
       .select('*')
@@ -123,6 +183,17 @@ export async function DELETE(req: NextRequest, context: RouteContext) {
   }
 
   try {
+    // Check if target is admin
+    const { data: targetProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (targetProfile?.role === 'administrator') {
+      return NextResponse.json({ error: 'Administrator accounts cannot be deleted' }, { status: 400 });
+    }
+
     // 1. Delete from Supabase Auth
     const { error: authErr } = await supabase.auth.admin.deleteUser(userId);
     if (authErr) {
