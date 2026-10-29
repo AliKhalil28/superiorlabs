@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { School, ArrowLeft, Home } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, Home } from 'lucide-react';
 
 export default function NotFound() {
   return (
@@ -7,8 +8,15 @@ export default function NotFound() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center">
         {/* Superior College Header */}
         <div className="bg-slate-900 p-8 text-white">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-md">
-            <School className="w-8 h-8" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white p-1 flex items-center justify-center shadow-lg border-2 border-emerald-500/30">
+            <Image
+              src="/images/superior-logo.png"
+              alt="Superior College Logo"
+              width={64}
+              height={64}
+              className="w-full h-full object-contain rounded-full"
+              priority
+            />
           </div>
           <h1 className="text-xl font-bold tracking-tight">Superior Lab Tracker</h1>
           <p className="text-xs text-slate-300 mt-1 font-medium">

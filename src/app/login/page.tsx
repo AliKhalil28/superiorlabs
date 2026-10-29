@@ -59,13 +59,13 @@ export default function LoginPage() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
         {/* Superior College Header Banner */}
         <div className="bg-slate-900 p-8 text-center text-white relative">
-          <div className="bg-white rounded-2xl py-3 px-6 mx-auto mb-4 max-w-[260px] shadow-lg flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-white p-1 mx-auto mb-4 shadow-xl flex items-center justify-center border-2 border-emerald-500/30">
             <Image
               src="/images/superior-logo.png"
               alt="Superior College Logo"
-              width={240}
-              height={64}
-              className="h-11 w-auto object-contain"
+              width={80}
+              height={80}
+              className="w-full h-full object-contain rounded-full"
               priority
             />
           </div>

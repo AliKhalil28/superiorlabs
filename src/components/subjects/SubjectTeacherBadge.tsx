@@ -159,3 +159,4 @@ export const SubjectTeacherBadge: React.FC<SubjectTeacherBadgeProps> = ({
     </>
   );
 };
+

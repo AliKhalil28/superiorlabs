@@ -110,3 +110,4 @@ async function migrateTeacherColumn() {
 }
 
 migrateTeacherColumn().catch(console.error);
+

@@ -13,7 +13,11 @@ export const metadata: Metadata = {
   description:
     'Institutional Google Drive practical lab and student submission tracking dashboard for Superior College, Mian Channu, Punjab, Pakistan.',
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    apple: '/icon.png',
   },
 };
 

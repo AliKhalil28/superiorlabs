@@ -12,7 +12,7 @@ import {
   getAllSubjectSummaries,
   getDriveConnection,
 } from '@/lib/data/college-store';
-import { BookOpen, ArrowRight, FileText } from 'lucide-react';
+import { BookOpen, ArrowRight, FileText, User, UserX } from 'lucide-react';
 
 interface Props {
   params: Promise<{ groupId: string }>;
@@ -96,9 +96,23 @@ export default async function AcademicGroupDetailPage({ params }: Props) {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm">{subj.subject_name}</h3>
-                  <span className="text-[11px] text-slate-500 font-mono">
-                    Expected: 10 Practicals
-                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[11px] text-slate-500 font-mono">
+                      Expected: 10 Practicals
+                    </span>
+                    <span className="text-slate-300">•</span>
+                    {subj.teacher_name ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                        <User className="w-3 h-3 text-blue-600" />
+                        <span>{subj.teacher_name}</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-slate-400 italic">
+                        <UserX className="w-3 h-3 text-slate-300" />
+                        <span>Unassigned</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 

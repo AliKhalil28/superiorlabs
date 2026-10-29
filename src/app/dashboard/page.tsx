@@ -21,6 +21,8 @@ import {
   HardDrive,
   ArrowRight,
   AlertTriangle,
+  User,
+  UserX,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
@@ -213,6 +215,7 @@ export default async function DashboardPage() {
               <tr>
                 <th className="py-2.5 px-4">Subject Name</th>
                 <th className="py-2.5 px-4">Academic Group</th>
+                <th className="py-2.5 px-4">Teacher Name</th>
                 <th className="py-2.5 px-4 text-center">Detected / 10</th>
                 <th className="py-2.5 px-4 text-center">With Files</th>
                 <th className="py-2.5 px-4 text-center">Empty</th>
@@ -233,6 +236,19 @@ export default async function DashboardPage() {
                     </Link>
                   </td>
                   <td className="py-3 px-4 text-slate-500">{subj.academic_group_name}</td>
+                  <td className="py-3 px-4">
+                    {subj.teacher_name ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-100 shadow-2xs">
+                        <User className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span className="truncate max-w-[140px]">{subj.teacher_name}</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-slate-400 italic">
+                        <UserX className="w-3 h-3 text-slate-300 shrink-0" />
+                        <span>Unassigned</span>
+                      </span>
+                    )}
+                  </td>
                   <td className="py-3 px-4 text-center font-mono">
                     {subj.practical_folders_detected} / 10
                   </td>
